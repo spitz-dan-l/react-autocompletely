@@ -26,6 +26,7 @@ class Input extends Component {
     this.handleChange = compose(this.handleChange, this.props.onChange)
     this.handleKeyDown = compose(this.handleKeyDown, this.props.onKeyDown)
     this.handleBlur = compose(this.handleBlur, this.props.onBlur)
+    this.state = {value: ''}
   }
 
   keyDownHandlers = {
@@ -56,6 +57,7 @@ class Input extends Component {
     if (event.key && this.keyDownHandlers[event.key]) {
       this.keyDownHandlers[event.key].call(this, event)
     } else if (!Input.ignoreKeys.includes(event.key)) {
+      //append dat char bro
       this.autocomplete.open()
       this.autocomplete.highlightIndex(
         this.autocomplete.state.menu.props.defaultHighlightedIndex,
@@ -64,12 +66,12 @@ class Input extends Component {
   }
 
   handleChange = event => {
-    this.updateInputValue(event.target.value)
+    this.updateInputValue(event.target.value) //this is where the magic happens
   }
 
   handleBlur = () => {
     if (!this.autocomplete.isMouseDown) {
-      this.autocomplete.reset()
+      //this.autocomplete.reset()
     }
   }
 
@@ -107,22 +109,44 @@ class Input extends Component {
 
   render() {
     // eslint-disable-next-line no-unused-vars
+    const input_styles = {
+      position: 'absolute',
+      left: '-16px',
+      top: 0,
+      width: '20px',
+      height: '16px',
+      background: 'transparent',
+      border: 'none',
+      color: 'transparent',
+      outline: 'none',
+      padding: 0,
+      resize: 'none',
+      zIndex: 0,
+      overflow: 'hidden',
+    }
+
     const {defaultValue, getValue, ...rest} = this.props
     const {inputValue, selectedItem, isOpen} = this.autocomplete.state
     const selectedItemValue = this.getValue(selectedItem)
     return (
-      <input
-        role="combobox"
-        aria-autocomplete="list"
-        aria-expanded={isOpen}
-        autoComplete="off"
-        value={(inputValue === null ? selectedItemValue : inputValue) || ''}
-        {...rest}
-        onChange={this.handleChange}
-        onKeyDown={this.handleKeyDown}
-        onBlur={this.handleBlur}
-        ref={node => (this._inputNode = node)}
-      />
+      <div>
+        <input
+          role="combobox"
+          aria-autocomplete="list"
+          aria-expanded={isOpen}
+          autoComplete="off"
+          value={(inputValue === null ? selectedItemValue : inputValue) || ''}
+          {...rest}
+          onChange={this.handleChange}
+          onKeyDown={this.handleKeyDown}
+          onBlur={this.handleBlur}
+          ref={node => (this._inputNode = node)}
+          style={input_styles}
+        />
+        <span onClick={() => this.focusInput()}>
+          {this.autocomplete.state.inputValue}
+        </span>
+      </div>
     )
   }
 }
